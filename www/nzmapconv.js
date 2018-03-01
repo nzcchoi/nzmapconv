@@ -400,3 +400,31 @@ nzmapconv.setup = function()
 
 
 $(document).ready(nzmapconv.setup);
+
+//TEST Functions
+$(document).ready(function() {
+    var location = new LINZ.Geodetic.Location('NZGD2000', [173.125, -42.816]);
+    var nzgd2000 = location.as('NZGD2000');
+    var nztm = location.as('NZTM')
+    var nzgd = location.as('NZGD1949')
+    var nzmg = location.as('NZMG')
+    console.log('nztm', nztm);
+    console.log('nzgd', nzgd);
+    console.log('nzmg', nzmg);
+    console.log(JSON.stringify(nzgd) ==  JSON.stringify([173.12485543187958, -42.817695004804186]));
+    console.log(JSON.stringify(nzmg) == JSON.stringify([2520230.3814513064, 5821254.2366364645]));
+    console.log(JSON.stringify(nztm) == JSON.stringify([1610218.8935441594, 5259610.185171923]));
+    // console.log(easting === 1610218.8935441594)
+    location = new LINZ.Geodetic.Location('NZTM', [1610218.8935441594, 5259610.185171923]);
+    var nzgd2000 = location.as('NZGD2000');
+    var nztm = location.as('NZTM')
+    var nzgd = location.as('NZGD1949')
+    var nzmg = location.as('NZMG')
+    console.log('nztm', nztm);
+    console.log('nzgd', nzgd);
+    console.log('nzmg', nzmg);
+    console.log(JSON.stringify(nzgd) ==  JSON.stringify([173.1248554318832, -42.81769500659425]));
+    console.log(JSON.stringify(nzmg) == JSON.stringify([2520230.3814513288, 5821254.236437607]));
+    console.log(JSON.stringify(nztm) == JSON.stringify([1610218.8935441594, 5259610.185171923]));
+    
+});
