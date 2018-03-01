@@ -54,24 +54,15 @@ LINZ.Geodetic.Utility.Complex = function (re, im) {
         );
     }
 }
-console.log(LINZ.Geodetic.Utility.Complex);
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
 // Projection
-
 LINZ.Geodetic.Projection = function () {
 }
 
-LINZ.Geodetic.Projection.prototype.apply = function (coord) {
-    return this.toGeodetic(coord);
-}
-
-LINZ.Geodetic.Projection.prototype.unapply = function (coord) {
-    return this.toProjection(coord);
-}
-
-
+//////////////////////////////////////////////////////////////////////////
+//  NZTM projections
 LINZ.Geodetic.Projection.NZMG = function () {
     this.a = 6378388.0;
     this.n0 = 6023150.0;
@@ -174,15 +165,8 @@ LINZ.Geodetic.Projection.NZMG = function () {
 
 }
 
-LINZ.Geodetic.Projection.NZMG.prototype = Object.create(LINZ.Geodetic.Projection.prototype);
-
-
-
-
 //////////////////////////////////////////////////////////////////////////
 //  Transverse Mercator projections
-
-
 LINZ.Geodetic.Projection.TM = function (a, rf, cm, sf, lto, fe, fn, utom) {
     this.a = a;
     this.rf = rf;
@@ -197,30 +181,45 @@ LINZ.Geodetic.Projection.TM = function (a, rf, cm, sf, lto, fe, fn, utom) {
     this.f = f;
     this.e2 = 2.0 * f - f * f;
     this.ep2 = this.e2 / (1.0 - this.e2);
+
+    this.meridianArc = function (lt) {
+        var e2 = this.e2;
+        var a = this.a;
+        var e4 = e2 * e2;
+        var e6 = e4 * e2;
+    
+        var A0 = 1 - (e2 / 4.0) - (3.0 * e4 / 64.0) - (5.0 * e6 / 256.0);
+        var A2 = (3.0 / 8.0) * (e2 + e4 / 4.0 + 15.0 * e6 / 128.0);
+        var A4 = (15.0 / 256.0) * (e4 + 3.0 * e6 / 4.0);
+        var A6 = 35.0 * e6 / 3072.0;
+    
+        lt = lt * Math.PI / 180.0;
+        return a * (A0 * lt - A2 * Math.sin(2 * lt) + A4 * Math.sin(4 * lt) - A6 * Math.sin(6 * lt));
+    }
+
     this.om = this.meridianArc(this.orglat);
 
-    
     this.footPointLat = function (m) {
         var f = this.f;
         var a = this.a;
-    
+
         var n = f / (2.0 - f);
         var n2 = n * n;
         var n3 = n2 * n;
         var n4 = n2 * n2;
-    
+
         var g = a * (1.0 - n) * (1.0 - n2) * (1 + 9.0 * n2 / 4.0 + 225.0 * n4 / 64.0);
         var sig = m / g;
-    
+
         var phio = sig + (3.0 * n / 2.0 - 27.0 * n3 / 32.0) * Math.sin(2.0 * sig)
             + (21.0 * n2 / 16.0 - 55.0 * n4 / 32.0) * Math.sin(4.0 * sig)
             + (151.0 * n3 / 96.0) * Math.sin(6.0 * sig)
             + (1097.0 * n4 / 512.0) * Math.sin(8.0 * sig);
-    
+
         return phio;
     }
-    
-    
+
+
     this.toGeodetic = function (coord) {
         var fn = this.falsen;
         var fe = this.falsee;
@@ -230,60 +229,60 @@ LINZ.Geodetic.Projection.TM = function (a, rf, cm, sf, lto, fe, fn, utom) {
         var cm = this.meridian;
         var om = this.om;
         var utom = this.utom;
-    
+
         var cn1 = (coord[1] - fn) * utom / sf + om;
         var fphi = this.footPointLat(cn1);
         var slt = Math.sin(fphi);
         var clt = Math.cos(fphi);
-    
+
         var eslt = (1.0 - e2 * slt * slt);
         var eta = a / Math.sqrt(eslt);
         var rho = eta * (1.0 - e2) / eslt;
         var psi = eta / rho;
-    
+
         var E = (coord[0] - fe) * utom;
         var x = E / (eta * sf);
         var x2 = x * x;
-    
+
         var t = slt / clt;
         var t2 = t * t;
         var t4 = t2 * t2;
-    
+
         var trm1 = 1.0 / 2.0;
-    
+
         var trm2 = ((-4.0 * psi
             + 9.0 * (1 - t2)) * psi
             + 12.0 * t2) / 24.0;
-    
+
         var trm3 = ((((8.0 * (11.0 - 24.0 * t2) * psi
             - 12.0 * (21.0 - 71.0 * t2)) * psi
             + 15.0 * ((15.0 * t2 - 98.0) * t2 + 15)) * psi
             + 180.0 * ((-3.0 * t2 + 5.0) * t2)) * psi + 360.0 * t4) / 720.0;
-    
+
         var trm4 = (((1575.0 * t2 + 4095.0) * t2 + 3633.0) * t2 + 1385.0) / 40320.0;
-    
+
         var lt = fphi + (t * x * E / (sf * rho)) * (((trm4 * x2 - trm3) * x2 + trm2) * x2 - trm1);
         lt *= 180 / Math.PI;
-    
+
         var trm1 = 1.0;
-    
+
         var trm2 = (psi + 2.0 * t2) / 6.0;
-    
+
         var trm3 = (((-4.0 * (1.0 - 6.0 * t2) * psi
             + (9.0 - 68.0 * t2)) * psi
             + 72.0 * t2) * psi
             + 24.0 * t4) / 120.0;
-    
+
         var trm4 = (((720.0 * t2 + 1320.0) * t2 + 662.0) * t2 + 61.0) / 5040.0;
-    
+
         var ln = (x / clt) * (((trm4 * x2 - trm3) * x2 + trm2) * x2 - trm1);
         ln = cm - ln * 180.0 / Math.PI;
-    
+
         return [ln, lt];
-    
+
     }
-    
-    
+
+
     this.toProjection = function (coord) {
         var fn = this.falsen;
         var fe = this.falsee;
@@ -293,84 +292,66 @@ LINZ.Geodetic.Projection.TM = function (a, rf, cm, sf, lto, fe, fn, utom) {
         var cm = this.meridian;
         var om = this.om;
         var utom = this.utom;
-    
+
         var ln = coord[0];
         var lt = coord[1];
-    
+
         var dlon = ln - cm;
         while (dlon > 180.0) dlon -= 360.0;
         while (dlon < -180.0) dlon += 360.0;
         dlon = dlon * Math.PI / 180.0;
-    
-    
+
+
         var m = this.meridianArc(lt);
         var slt = Math.sin(lt * Math.PI / 180.0);
         var clt = Math.cos(lt * Math.PI / 180.0);
-    
+
         var eslt = (1.0 - e2 * slt * slt);
         var eta = a / Math.sqrt(eslt);
         var rho = eta * (1.0 - e2) / eslt;
         var psi = eta / rho;
-    
+
         var w = dlon;
-    
+
         var wc = clt * w;
         var wc2 = wc * wc;
-    
+
         var t = slt / clt;
         var t2 = t * t;
         var t4 = t2 * t2;
         var t6 = t2 * t4;
-    
+
         var trm1 = (psi - t2) / 6.0;
-    
+
         var trm2 = (((4.0 * (1.0 - 6.0 * t2) * psi + (1.0 + 8.0 * t2)) * psi - 2.0 * t2) * psi + t4) / 120.0;
-    
+
         var trm3 = (61 - 479.0 * t2 + 179.0 * t4 - t6) / 5040.0;
-    
+
         var gce = (sf * eta * dlon * clt) * (((trm3 * wc2 + trm2) * wc2 + trm1) * wc2 + 1.0);
-    
+
         var ce = gce / utom + fe;
-    
+
         var trm1 = 1.0 / 2.0;
-    
+
         var trm2 = ((4.0 * psi + 1) * psi - t2) / 24.0;
-    
+
         var trm3 = ((((8.0 * (11.0 - 24.0 * t2) * psi
             - 28.0 * (1.0 - 6.0 * t2)) * psi
             + (1.0 - 32.0 * t2)) * psi
             - 2.0 * t2) * psi
             + t4) / 720.0;
-    
+
         var trm4 = (1385.0 - 3111.0 * t2 + 543.0 * t4 - t6) / 40320.0;
-    
+
         var gcn = (eta * t) * ((((trm4 * wc2 + trm3) * wc2 + trm2) * wc2 + trm1) * wc2);
-    
+
         var cn = (gcn + m - om) * sf / utom + fn;
-    
+
         return [ce, cn];
     }
+
     
 }
-
-LINZ.Geodetic.Projection.prototype.meridianArc = function (lt) {
-    var e2 = this.e2;
-    var a = this.a;
-    var e4 = e2 * e2;
-    var e6 = e4 * e2;
-
-    var A0 = 1 - (e2 / 4.0) - (3.0 * e4 / 64.0) - (5.0 * e6 / 256.0);
-    var A2 = (3.0 / 8.0) * (e2 + e4 / 4.0 + 15.0 * e6 / 128.0);
-    var A4 = (15.0 / 256.0) * (e4 + 3.0 * e6 / 4.0);
-    var A6 = 35.0 * e6 / 3072.0;
-
-    lt = lt * Math.PI / 180.0;
-    return a * (A0 * lt - A2 * Math.sin(2 * lt) + A4 * Math.sin(4 * lt) - A6 * Math.sin(6 * lt));
-}
-
-LINZ.Geodetic.Projection.TM.prototype = Object.create(LINZ.Geodetic.Projection.prototype);
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 //  Grid based datum conversion using slightly modified NTv2 ascii grid format.
@@ -381,8 +362,8 @@ LINZ.Geodetic.Projection.TM.prototype = Object.create(LINZ.Geodetic.Projection.p
 LINZ.Geodetic.TransformFunction = LINZ.Geodetic.TransformFunction || {};
 
 LINZ.Geodetic.TransformFunction.NullFunction = {
-    apply: function (x) { return x; },
-    unapply: function (x) { return x; }
+    toGeodetic: function (x) { return x; },
+    toProjection: function (x) { return x; }
 }
 
 LINZ.Geodetic.TransformFunction.GridTransform = function (grid_file) {
@@ -421,7 +402,7 @@ LINZ.Geodetic.TransformFunction.GridTransform = function (grid_file) {
         this.loaded = true;
         this.load_failed = false;
         return this.loaded;
-    
+
     }
     this.calcOffset = function (coord) {
         var glon = (coord[0] - this.lon0) / this.loninc;
@@ -442,14 +423,14 @@ LINZ.Geodetic.TransformFunction.GridTransform = function (grid_file) {
         ];
         return offset;
     }
-    this.apply = function (coord) {
+    this.toGeodetic = function (coord) {
         if (!this.load()) return;
         var offset = this.calcOffset(coord);
         if (!offset) return;
         return [coord[0] + offset[0], coord[1] + offset[1]];
     }
-    
-    this.unapply = function (coord) {
+
+    this.toProjection = function (coord) {
         if (!this.load()) return;
         var offset = this.calcOffset(coord);
         if (!offset) return;
@@ -471,45 +452,44 @@ LINZ.Geodetic.CoordSys = function (code, name, type, baseCode, transform) {
     this.transform = transform || LINZ.Geodetic.TransformFunction.NullFunction;
 }
 
-LINZ.Geodetic.CoordSys.GEOCENTRIC = 0; // XYZ coords
-LINZ.Geodetic.CoordSys.GEODETIC = 1;   // Lat/lon/ellipsoidal height
-LINZ.Geodetic.CoordSys.PROJECTION = 2; // Easting/northing
-
 LINZ.Geodetic.CoordSys.MaxDepth = 10;  // 
 
-LINZ.Geodetic.CoordSys.CoordSysList = {
-    'NZGD2000': new LINZ.Geodetic.CoordSys(
-        'NZGD2000',
-        'New Zealand Geodetic Datum 2000',
-        LINZ.Geodetic.CoordSys.GEODETIC,
-        null,
-        null
-    ),
-    'NZTM': new LINZ.Geodetic.CoordSys(
-        'NZTM',
-        'New Zealand Transverse Mercator',
-        LINZ.Geodetic.CoordSys.PROJECTION,
-        'NZGD2000',
-        new LINZ.Geodetic.Projection.TM(6378137.0, 298.257222, 173.0, 0.9996, 0.0, 1600000.0, 10000000.0, 1.0)
-    ),
-    'NZGD1949': new LINZ.Geodetic.CoordSys(
-        'NZGD1949',
-        'New Zealand Geodetic Datum 1949',
-        LINZ.Geodetic.CoordSys.GEODETIC,
-        'NZGD2000',
-        new LINZ.Geodetic.TransformFunction.GridTransform('./nzgd2kgrid9911.asc.json')
-    ),
-    'NZMG': new LINZ.Geodetic.CoordSys(
-        'NZMG',
-        'New Zealand Map Grid',
-        LINZ.Geodetic.CoordSys.PROJECTION,
-        'NZGD1949',
-        new LINZ.Geodetic.Projection.NZMG()
-    )
-};
-
 LINZ.Geodetic.CoordSys.getCoordSys = function (code) {
-    return LINZ.Geodetic.CoordSys.CoordSysList[code]
+    var GEOCENTRIC = 0; // XYZ coords
+    var GEODETIC = 1;   // Lat/lon/ellipsoidal height
+    var PROJECTION = 2; // Easting/northing
+    var CoordSysList = {
+        'NZGD2000': new LINZ.Geodetic.CoordSys(
+            'NZGD2000',
+            'New Zealand Geodetic Datum 2000',
+            GEODETIC,
+            null,
+            null
+        ),
+        'NZTM': new LINZ.Geodetic.CoordSys(
+            'NZTM',
+            'New Zealand Transverse Mercator',
+            PROJECTION,
+            'NZGD2000',
+            new LINZ.Geodetic.Projection.TM(6378137.0, 298.257222, 173.0, 0.9996, 0.0, 1600000.0, 10000000.0, 1.0)
+        ),
+        'NZGD1949': new LINZ.Geodetic.CoordSys(
+            'NZGD1949',
+            'New Zealand Geodetic Datum 1949',
+            GEODETIC,
+            'NZGD2000',
+            new LINZ.Geodetic.TransformFunction.GridTransform('./nzgd2kgrid9911.asc.json')
+        ),
+        'NZMG': new LINZ.Geodetic.CoordSys(
+            'NZMG',
+            'New Zealand Map Grid',
+            PROJECTION,
+            'NZGD1949',
+            new LINZ.Geodetic.Projection.NZMG()
+        )
+    };
+
+    return CoordSysList[code]
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -526,12 +506,12 @@ LINZ.Geodetic.Location = function (coordSysCode, coordinates) {
     // Express the location in a selected coordinate system.
     this.as = function (coordSysCode) {
         // If already available, just return it.
-    
+
         if (coordSysCode in this.coordinates) return this.coordinates[coordSysCode];
         var getcrdsys = LINZ.Geodetic.CoordSys.getCoordSys;
         var coordsys = getcrdsys(coordSysCode);
         if (!coordsys) return;
-    
+
         // Find options for transforming to required system
         var crdSysStages = [coordsys.code];
         var transformStages = [[coordsys.transform, 0]];
@@ -549,11 +529,11 @@ LINZ.Geodetic.Location = function (coordSysCode, coordinates) {
             crdSysStages.unshift(coordsys.code);
             transformStages.unshift([coordsys.transform, 0]);
         }
-    
+
         if (!gotTransform) {
             var targetCrdSys = crdSysStages;
             var targetTransforms = transformStages;
-    
+
             // Find candidate to transform from
             for (cscode in this.coordinates) {
                 fcs = getcrdsys(cscode);
@@ -562,7 +542,7 @@ LINZ.Geodetic.Location = function (coordSysCode, coordinates) {
                 crdSysStages = [cscode, fcs.baseCode];
                 transformStages = [null, [fcs.transform, 1]];
                 depth = LINZ.Geodetic.CoordSys.MaxDepth;
-    
+
                 while (depth-- > 0) {
                     targetIndex = targetCrdSys.indexOf(fcs.baseCode);
                     if (targetIndex >= 0) {
@@ -580,16 +560,16 @@ LINZ.Geodetic.Location = function (coordSysCode, coordinates) {
             }
         }
         if (!gotTransform) return;
-    
+
         var coord = this.coordinates[crdSysStages[0]];
         for (i = 1; i < crdSysStages.length; i++) {
             tfm = transformStages[i];
-            coord = tfm[1] ? tfm[0].apply(coord) : tfm[0].unapply(coord);
+            coord = tfm[1] ? tfm[0].toGeodetic(coord) : tfm[0].toProjection(coord);
             this.coordinates[crdSysStages[i]] = coord;
         }
         return this.coordinates[coordSysCode];
     }
-    
+
 }
 
 

@@ -68,7 +68,6 @@ LINZ.CoordType = function () {
 
 ////////////////////////////////////////////////////////////////////////////////
 // LINZ.CoordType.LatLon
-
 LINZ.CoordType.LatLon = function (coordSys) {
     LINZ.CoordType.call(this);
     this.coordSys = coordSys;
@@ -250,16 +249,8 @@ LINZ.CoordType.LatLon = function (coordSys) {
 
 }
 
-LINZ.CoordType.LatLon.prototype = Object.create(LINZ.CoordType.prototype);
-
-
-
-
-//LINZ.CoordType.LatLon.prototype.
-
 ////////////////////////////////////////////////////////////////////////////////
 // LINZ.CoordType.Projection
-
 LINZ.CoordType.Projection = function (coordSys) {
     LINZ.CoordType.call(this);
     this.coordSys = coordSys;
@@ -331,13 +322,9 @@ LINZ.CoordType.Projection = function (coordSys) {
 
 }
 
-LINZ.CoordType.Projection.prototype = Object.create(LINZ.CoordType.prototype);
-
-
 
 ////////////////////////////////////////////////////////////////////////////////
 // LINZ.CoordType.MapRef
-
 LINZ.CoordType.MapRef = function () {
     LINZ.CoordType.call(this);
     this.options.digits = '6';   // Options 6 or 8
@@ -424,9 +411,6 @@ LINZ.CoordType.MapRef = function () {
 
 }
 
-LINZ.CoordType.MapRef.prototype = Object.create(LINZ.CoordType.prototype);
-
-
 ////////////////////////////////////////////////////////////////////////////////
 // LINZ.CoordType.NZMS260MapRef
 
@@ -453,8 +437,6 @@ LINZ.CoordType.NZMS260MapRef = function () {
     this.exampleCoord = new LINZ.Geodetic.Location(this.coordSys, [2659081.071, 5989747.627]);
 }
 
-LINZ.CoordType.NZMS260MapRef.prototype = Object.create(LINZ.CoordType.MapRef.prototype);
-
 ////////////////////////////////////////////////////////////////////////////////
 // LINZ.CoordType.Topo50MapRef
 
@@ -479,8 +461,6 @@ LINZ.CoordType.Topo50MapRef = function () {
     this.coordSys = 'NZTM';
     this.exampleCoord = new LINZ.Geodetic.Location(this.coordSys, [1748798.071, 5428003.627]);
 }
-
-LINZ.CoordType.Topo50MapRef.prototype = Object.create(LINZ.CoordType.MapRef.prototype);
 
 ///////////////////////////////////////////////////////////////////////////
 
