@@ -190,7 +190,7 @@ var LatLon = function (coordSys) {
         if (deg1 < 160 || deg1 > 180) return;
         if (deg2 < -50 || deg2 > -30) return;
 
-        return new Geodetic.Location(this.coordSys, [deg1, deg2]);
+        return new Location(this.coordSys, [deg1, deg2]);
     }
 
 
