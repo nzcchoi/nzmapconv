@@ -48,7 +48,7 @@
 // }
 //
 
-CoordType = function () {
+var CoordType = function () {
     this.options = {};
     this.exampleCoord = null;
 
@@ -67,7 +67,7 @@ CoordType = function () {
 
 ////////////////////////////////////////////////////////////////////////////////
 // LatLon
-LatLon = function (coordSys) {
+var LatLon = function (coordSys) {
     CoordType.call(this);
     this.coordSys = coordSys;
     this.options.order = 'EN';      // Options EN,NE
@@ -250,7 +250,7 @@ LatLon = function (coordSys) {
 
 ////////////////////////////////////////////////////////////////////////////////
 // CoordType.Projection
-CoordType.Projection = function (coordSys) {
+var Projection = function (coordSys) {
     CoordType.call(this);
     this.coordSys = coordSys;
     this.options.order = 'EN';      // Options EN, NE
@@ -324,7 +324,7 @@ CoordType.Projection = function (coordSys) {
 
 ////////////////////////////////////////////////////////////////////////////////
 // CoordType.MapRef
-CoordType.MapRef = function () {
+var MapRef = function () {
     CoordType.call(this);
     this.options.digits = '6';   // Options 6 or 8
     this.mapLetters = [];
@@ -413,8 +413,8 @@ CoordType.MapRef = function () {
 ////////////////////////////////////////////////////////////////////////////////
 // CoordType.NZMS260MapRef
 
-NZMS260MapRef = function () {
-    CoordType.MapRef.call(this);
+var NZMS260MapRef = function () {
+    MapRef.call(this);
     this.mapLetters = [
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
         'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
@@ -439,8 +439,8 @@ NZMS260MapRef = function () {
 ////////////////////////////////////////////////////////////////////////////////
 // CoordType.Topo50MapRef
 
-CoordType.Topo50MapRef = function () {
-    CoordType.MapRef.call(this);
+var Topo50MapRef = function () {
+    MapRef.call(this);
     this.mapLetters = [
         'AS', 'AT', 'AU', 'AV', 'AW', 'AX', 'AY', 'AZ', 'BA', 'BB', 'BC', 'BD', 'BE', 'BF', 'BG',
         'BH', 'BJ', 'BK', 'BL', 'BM', 'BN', 'BP', 'BQ', 'BR', 'BS', 'BT', 'BU', 'BV', 'BW', 'BX',

@@ -374,11 +374,11 @@ nzmapconv.setup = function()
 
     nzmapconv.CoordEntry.entryFields=[
         new nzmapconv.CoordEntry('nz260',new NZMS260MapRef()),
-        new nzmapconv.CoordEntry('nztopo50',new CoordType.Topo50MapRef()),
+        new nzmapconv.CoordEntry('nztopo50',new Topo50MapRef()),
         new nzmapconv.CoordEntry('nzgd49',new LatLon('NZGD1949')),
         new nzmapconv.CoordEntry('nzgd2000',new LatLon('NZGD2000')),
-        new nzmapconv.CoordEntry('nzmg',new CoordType.Projection('NZMG')),
-        new nzmapconv.CoordEntry('nztm',new CoordType.Projection('NZTM')),
+        new nzmapconv.CoordEntry('nzmg',new Projection('NZMG')),
+        new nzmapconv.CoordEntry('nztm',new Projection('NZTM')),
         ];
 
     nzmapconv.CoordEntry.fieldConverted=nzmapconv.addToHistory;
