@@ -1,10 +1,9 @@
 
-var LINZ = LINZ || {};
 
 // Temporary implementation!
 // Geodetic coordinate ...
 
-//LINZ.Geodetic=require('./linz-geodetic.js')
+//Geodetic=require('./linz-geodetic.js')
 
 // Coordinate types used in NZMapConv application.  Each type has functions
 //
@@ -20,22 +19,22 @@ var LINZ = LINZ || {};
 // of the data type.
 //
 // Coordinate types defined here are:
-//    LINZ.CoordType.LatLon( coordSys )
-//    LINZ.CoordType.Projection( coordSys )
-//    LINZ.CoordType.NZMS260MapRef()
-//    LINZ.CoordType.Topo50MapRef()
+//    LatLon( coordSys )
+//    CoordType.Projection( coordSys )
+//    CoordType.NZMS260MapRef()
+//    CoordType.Topo50MapRef()
 //     
 // coordSys will be one of 'NZGD1949', and 'NZGD2000' for LatLon types
 // coordSys will be one of 'NZMG', 'NZTM' for Projection types
 //
 // Example usage:
 //
-// ctNZGD2000=new LINZ.CoordType.LatLon('NZGD2000')
-// ctNZGD1949=new LINZ.CoordType.LatLon('NZGD1949')
-// ctNZMG=new LINZ.CoordType.Projection('NZMG')
-// ctNZTM=new LINZ.CoordType.Projection('NZTM')
-// ctNZMS260MapRef=new LINZ.CoordType.NZMS260MapRef()
-// ctTopo50MapRef=new LINZ.CorodType.Topo50MapRef()
+// ctNZGD2000=new LatLon('NZGD2000')
+// ctNZGD1949=new LatLon('NZGD1949')
+// ctNZMG=new CoordType.Projection('NZMG')
+// ctNZTM=new CoordType.Projection('NZTM')
+// ctNZMS260MapRef=new CoordType.NZMS260MapRef()
+// ctTopo50MapRef=new CorodType.Topo50MapRef()
 //
 // location=ctNZGD2000.parse(myCoordString)
 // if( location == null )
@@ -49,7 +48,7 @@ var LINZ = LINZ || {};
 // }
 //
 
-LINZ.CoordType = function () {
+CoordType = function () {
     this.options = {};
     this.exampleCoord = null;
 
@@ -67,14 +66,14 @@ LINZ.CoordType = function () {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// LINZ.CoordType.LatLon
-LINZ.CoordType.LatLon = function (coordSys) {
-    LINZ.CoordType.call(this);
+// LatLon
+LatLon = function (coordSys) {
+    CoordType.call(this);
     this.coordSys = coordSys;
     this.options.order = 'EN';      // Options EN,NE
     this.options.format = 'DMS';    // Options DMS,DM,D
     this.options.precision = 0;   // 0-9
-    this.exampleCoord = new LINZ.Geodetic.Location(coordSys, [174.779104, -41.282442]);
+    this.exampleCoord = new Location(coordSys, [174.779104, -41.282442]);
 
     // Regular expressions for parsing lat/lon formats.  These only
     // Just two numbers
@@ -191,7 +190,7 @@ LINZ.CoordType.LatLon = function (coordSys) {
         if (deg1 < 160 || deg1 > 180) return;
         if (deg2 < -50 || deg2 > -30) return;
 
-        return new LINZ.Geodetic.Location(this.coordSys, [deg1, deg2]);
+        return new Geodetic.Location(this.coordSys, [deg1, deg2]);
     }
 
 
@@ -250,18 +249,18 @@ LINZ.CoordType.LatLon = function (coordSys) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// LINZ.CoordType.Projection
-LINZ.CoordType.Projection = function (coordSys) {
-    LINZ.CoordType.call(this);
+// CoordType.Projection
+CoordType.Projection = function (coordSys) {
+    CoordType.call(this);
     this.coordSys = coordSys;
     this.options.order = 'EN';      // Options EN, NE
     this.options.precision = 0;   // 0-3
     // Will need to change this if we make coordSys more intelligent!
     if (this.coordSys == 'NZTM') {
-        this.exampleCoord = new LINZ.Geodetic.Location(coordSys, [1748798.071, 5428003.627]);
+        this.exampleCoord = new Location(coordSys, [1748798.071, 5428003.627]);
     }
     else {
-        this.exampleCoord = new LINZ.Geodetic.Location(coordSys, [2659081.071, 5989747.627]);
+        this.exampleCoord = new Location(coordSys, [2659081.071, 5989747.627]);
     }
 
     this.reProj1 =
@@ -302,7 +301,7 @@ LINZ.CoordType.Projection = function (coordSys) {
         if (axis1 == 'E' && axis2 != 'N') return;
         if (axis1 == 'N' && axis2 != 'E') return;
         if (axis1 == 'N') { var tmp = ord1; ord1 = ord2; ord2 = tmp; }
-        return new LINZ.Geodetic.Location(this.coordSys, [ord1, ord2]);
+        return new Location(this.coordSys, [ord1, ord2]);
     }
 
     this.format = function (location) {
@@ -324,9 +323,9 @@ LINZ.CoordType.Projection = function (coordSys) {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// LINZ.CoordType.MapRef
-LINZ.CoordType.MapRef = function () {
-    LINZ.CoordType.call(this);
+// CoordType.MapRef
+CoordType.MapRef = function () {
+    CoordType.call(this);
     this.options.digits = '6';   // Options 6 or 8
     this.mapLetters = [];
     this.mapNumbers = [];
@@ -373,7 +372,7 @@ LINZ.CoordType.MapRef = function () {
         mape = mape + Math.round((mapCentreE - mape) / 100000.0) * 100000.0;
         mapn = mapn + Math.round((mapCentreN - mapn) / 100000.0) * 100000.0;
 
-        return new LINZ.Geodetic.Location(this.coordSys, [mape, mapn]);
+        return new Location(this.coordSys, [mape, mapn]);
     }
 
     this.format = function (location) {
@@ -412,10 +411,10 @@ LINZ.CoordType.MapRef = function () {
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// LINZ.CoordType.NZMS260MapRef
+// CoordType.NZMS260MapRef
 
-LINZ.CoordType.NZMS260MapRef = function () {
-    LINZ.CoordType.MapRef.call(this);
+NZMS260MapRef = function () {
+    CoordType.MapRef.call(this);
     this.mapLetters = [
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
         'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
@@ -434,14 +433,14 @@ LINZ.CoordType.NZMS260MapRef = function () {
     this.mapSizeE = 40000.0;
     this.mapSizeN = 30000.0;
     this.coordSys = 'NZMG';
-    this.exampleCoord = new LINZ.Geodetic.Location(this.coordSys, [2659081.071, 5989747.627]);
+    this.exampleCoord = new Location(this.coordSys, [2659081.071, 5989747.627]);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-// LINZ.CoordType.Topo50MapRef
+// CoordType.Topo50MapRef
 
-LINZ.CoordType.Topo50MapRef = function () {
-    LINZ.CoordType.MapRef.call(this);
+CoordType.Topo50MapRef = function () {
+    CoordType.MapRef.call(this);
     this.mapLetters = [
         'AS', 'AT', 'AU', 'AV', 'AW', 'AX', 'AY', 'AZ', 'BA', 'BB', 'BC', 'BD', 'BE', 'BF', 'BG',
         'BH', 'BJ', 'BK', 'BL', 'BM', 'BN', 'BP', 'BQ', 'BR', 'BS', 'BT', 'BU', 'BV', 'BW', 'BX',
@@ -459,9 +458,9 @@ LINZ.CoordType.Topo50MapRef = function () {
     this.mapSizeE = 24000.0;
     this.mapSizeN = 36000.0;
     this.coordSys = 'NZTM';
-    this.exampleCoord = new LINZ.Geodetic.Location(this.coordSys, [1748798.071, 5428003.627]);
+    this.exampleCoord = new Location(this.coordSys, [1748798.071, 5428003.627]);
 }
 
 ///////////////////////////////////////////////////////////////////////////
 
-//module.exports=LINZ.CoordType;
+//module.exports=CoordType;

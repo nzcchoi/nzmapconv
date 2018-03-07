@@ -1,5 +1,4 @@
 var nzmapconv = nzmapconv || {};
-var LINZ=LINZ || {};
 
 nzmapconv.CoordEntry=function(id,cstype)
 {
@@ -374,12 +373,12 @@ nzmapconv.setup = function()
     nzmapconv.setButtonStates();
 
     nzmapconv.CoordEntry.entryFields=[
-        new nzmapconv.CoordEntry('nz260',new LINZ.CoordType.NZMS260MapRef()),
-        new nzmapconv.CoordEntry('nztopo50',new LINZ.CoordType.Topo50MapRef()),
-        new nzmapconv.CoordEntry('nzgd49',new LINZ.CoordType.LatLon('NZGD1949')),
-        new nzmapconv.CoordEntry('nzgd2000',new LINZ.CoordType.LatLon('NZGD2000')),
-        new nzmapconv.CoordEntry('nzmg',new LINZ.CoordType.Projection('NZMG')),
-        new nzmapconv.CoordEntry('nztm',new LINZ.CoordType.Projection('NZTM')),
+        new nzmapconv.CoordEntry('nz260',new NZMS260MapRef()),
+        new nzmapconv.CoordEntry('nztopo50',new CoordType.Topo50MapRef()),
+        new nzmapconv.CoordEntry('nzgd49',new LatLon('NZGD1949')),
+        new nzmapconv.CoordEntry('nzgd2000',new LatLon('NZGD2000')),
+        new nzmapconv.CoordEntry('nzmg',new CoordType.Projection('NZMG')),
+        new nzmapconv.CoordEntry('nztm',new CoordType.Projection('NZTM')),
         ];
 
     nzmapconv.CoordEntry.fieldConverted=nzmapconv.addToHistory;
@@ -403,7 +402,7 @@ $(document).ready(nzmapconv.setup);
 
 //TEST Functions
 $(document).ready(function() {
-    var location = new LINZ.Geodetic.Location('NZGD2000', [173.125, -42.816]);
+    var location = new Location('NZGD2000', [173.125, -42.816]);
     var nzgd2000 = location.as('NZGD2000');
     var nztm = location.as('NZTM')
     var nzgd = location.as('NZGD1949')
@@ -415,7 +414,7 @@ $(document).ready(function() {
     console.log(JSON.stringify(nzmg) == JSON.stringify([2520230.3814513064, 5821254.2366364645]));
     console.log(JSON.stringify(nztm) == JSON.stringify([1610218.8935441594, 5259610.185171923]));
     // console.log(easting === 1610218.8935441594)
-    location = new LINZ.Geodetic.Location('NZTM', [1610218.8935441594, 5259610.185171923]);
+    location = new Location('NZTM', [1610218.8935441594, 5259610.185171923]);
     var nzgd2000 = location.as('NZGD2000');
     var nztm = location.as('NZTM')
     var nzgd = location.as('NZGD1949')

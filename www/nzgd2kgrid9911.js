@@ -1,8 +1,7 @@
-var LINZ = LINZ || {};
-LINZ.Geodetic = LINZ.Geodetic || {
+var Geodetic = Geodetic || {
 };
 
-LINZ.Geodetic.GridData = LINZ.Geodetic.GridData || {
+Geodetic.GridData = Geodetic.GridData || {
   nzgd2kgrid9911: {
     "datumfrom": "NZGD49",
     "lat0": -48,
